@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  username String
+  email    String  @unique
+  password String
+  paste    Paste[]
+}
+
+model Paste {
+  id        String   @id @default(uuid())
+  title     String
+  userId    String
+  note      Note[]
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  pasteId   String
+  paste     Paste    @relation(fields: [pasteId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
