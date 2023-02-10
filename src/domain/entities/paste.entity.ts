@@ -8,7 +8,7 @@ export type PasteProps = {
   createdAt: Date;
   updatedAt?: Date;
   user?: UserEntity;
-  notes?: NoteEntity[]
+  note?: NoteEntity[]
 }
 
 export class PasteEntity {
@@ -18,7 +18,7 @@ export class PasteEntity {
   createdAt: Date;
   updatedAt: Date;
   user?: UserEntity;
-  notes?: NoteEntity[]
+  note?: NoteEntity[]
 
   constructor(props: PasteProps) {
     this.id = props.id;
@@ -27,6 +27,6 @@ export class PasteEntity {
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
     this.user = props.user;
-    this.notes = props.notes;
+    this.note = props.note;
   }
 }

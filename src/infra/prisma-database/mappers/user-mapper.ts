@@ -1,6 +1,7 @@
+import { PasteEntity } from '@domain/entities/paste.entity';
 import { UserEntity } from '@domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { Paste, Prisma, PrismaClient, User } from '@prisma/client';
 
 
 @Injectable()
@@ -13,16 +14,18 @@ export default class UserMapper {
         model.username = user.username;
         model.email = user.email;
         model.password = user.password;
+        model.paste = user.paste;
 
         return model
     }
 
-    public toEntity(user: User): UserEntity {
+    public toEntity(user: User, paste: Paste[]): UserEntity {
         const entity = new UserEntity({
             id: user.id,
             username: user.username,
             email: user.email,
-            password: user.password
+            password: user.password,
+            paste: paste.map(paste => new PasteEntity(paste))
         })
 
         return entity;
@@ -32,8 +35,8 @@ export default class UserMapper {
         return users.map(this.toModel)
     }
 
-    public toEntityList(users: User[]) : UserEntity[] {
-        return users.map(this.toEntity)
+    public toEntityList(users: User[], pastes: Paste[]) : UserEntity[] {
+        return users.map(users => this.toEntity(users, pastes))
     }
 
 }

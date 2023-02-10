@@ -6,9 +6,13 @@ export default class PastePresenter {
         return {
             id: paste.id,
             title: paste.title,
-            userId: paste.userId,
             createdAt: paste.createdAt,
-            updateAt: paste.updatedAt
+            updateAt: paste.updatedAt,
+            author:{ 
+                id : paste.user.id,
+                name : paste.user.username
+            },
+            notes: paste.note
         }
     }
 

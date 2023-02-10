@@ -43,7 +43,7 @@ export class PasteController {
     @Param('userId') userId: string,
     @Param('pasteId') pasteId: string
   ) {
-    const paste = await this._getPasteByIdUseCase.handle(pasteId)
+    const paste = await this._getPasteByIdUseCase.handle(userId, pasteId)
     return PastePresenter.toHttpResponse(paste)
   }
 
@@ -53,7 +53,7 @@ export class PasteController {
     @Param('pasteId') pasteId: string,
     @Body() body: PasteUpdateRequestBody
   ) {
-    const paste = await this._updatePasteUseCase.handle(pasteId, body)
+    const paste = await this._updatePasteUseCase.handle(userId, pasteId, body)
     return PastePresenter.toHttpResponse(paste)
   }
 
@@ -62,7 +62,7 @@ export class PasteController {
     @Param('userId') userId: string,
     @Param('pasteId') pasteId: string
   ) {
-    const paste = await this._deletePasteUseCase.handle(pasteId)
+    const paste = await this._deletePasteUseCase.handle(userId, pasteId)
     return paste
   }
 }

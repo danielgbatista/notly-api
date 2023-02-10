@@ -1,10 +1,13 @@
+import { PasteEntity } from "./paste.entity";
+
 export type NoteProps = {
-  id : string;
+  id?: string;
   title : string;
   content : string;
   pasteId : string;
   createdAt: Date;
   updatedAt: Date;
+  paste?: PasteEntity;
 }
 
 export class NoteEntity {
@@ -14,12 +17,14 @@ export class NoteEntity {
   pasteId: string;
   createdAt: Date;
   updatedAt: Date;
+  paste?: PasteEntity;
 
   constructor(props: NoteProps){
     this.id = props.id;
     this.title = props.title;
     this.content = props.content;
     this.pasteId = props.pasteId;
+    this.paste = props.paste;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }

@@ -11,10 +11,14 @@ export class UserPrismaRepository implements UserRepository {
     private readonly _mapper: UserMapper 
   ) {}
 
-  async create(user: UserEntity): Promise<UserEntity> {
+  async create(user: UserEntity): Promise<any> {
+    const userModel = this._mapper.toModel(user)
     const data = await this._database.user.create({
       data: {
-        ...user,
+        ...userModel,
+      },
+      include: {
+        paste: true
       }
     });
     return this._mapper.toModel(data)
@@ -37,8 +41,9 @@ export class UserPrismaRepository implements UserRepository {
   }
 
   async update(user: UserEntity, id: string): Promise<UserEntity> {
+    const userModel = this._mapper.toModel(user)
     return await this._database.user.update({
-      data: user,
+      data: userModel,
       where: {
         id,
       },

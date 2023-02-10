@@ -13,11 +13,10 @@ export class PastePrismaRepository implements PasteRepository {
   ) {}
 
   async create(id: string, paste: PasteEntity): Promise<PasteEntity> {
-    console.log('folder: ', paste)
+    const pasteModel = this._mapper.toModel(paste)
     const data = await this._database.paste.create({
       data: {
-        ...paste,
-        userId: id,
+        ...pasteModel
       },
       include: {
         user: true,
@@ -29,7 +28,12 @@ export class PastePrismaRepository implements PasteRepository {
   }
 
   async listAll(): Promise<PasteEntity[]> {
-    const data = await this._database.paste.findMany();
+    const data = await this._database.paste.findMany({
+      include: {
+        user: true,
+        note: true,
+      },
+    });
     return this._mapper.toModelList(data)
   }
 
@@ -47,10 +51,15 @@ export class PastePrismaRepository implements PasteRepository {
   }
 
   async update(paste: PasteEntity, id: string): Promise<PasteEntity> {
+    const pasteModel = this._mapper.toModel(paste)
     const data = await this._database.paste.update({
-      data: paste,
+      data: pasteModel,
       where: {
         id,
+      },
+      include: {
+        user: true,
+        note: true,
       },
     });
     return this._mapper.toModel(data)
