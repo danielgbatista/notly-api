@@ -8,7 +8,7 @@ export default class DeleteNoteUseCase {
         private readonly _noteRepository: NoteRepository
     ) {}
 
-    public async handle(pasteId: string, noteId: string): Promise<Boolean | NoteEntity> {
+    public async handle(pasteId: string, noteId: string): Promise<NoteEntity> {
         return this._noteRepository.delete(noteId)
     }
 }

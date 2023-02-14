@@ -5,6 +5,6 @@ export default abstract class UserRepository {
     abstract listAll() : Promise<UserEntity[]>;
     abstract getById(id: string) : Promise<UserEntity | null>;
     abstract update(user: UserEntity, id: string) : Promise<UserEntity>;
-    abstract delete(id: string) : Promise<boolean | UserEntity>;
+    abstract delete(id: string) : Promise<UserEntity>;
     abstract getByEmail(email: string) : Promise<UserEntity>;
 }

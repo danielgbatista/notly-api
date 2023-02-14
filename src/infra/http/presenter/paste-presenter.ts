@@ -9,8 +9,8 @@ export default class PastePresenter {
             createdAt: paste.createdAt,
             updateAt: paste.updatedAt,
             author:{ 
-                id : paste.user.id,
-                name : paste.user.username
+                id : paste.userId,
+                name : paste.user?.username
             },
             notes: paste.note
         }

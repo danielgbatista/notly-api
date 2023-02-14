@@ -12,25 +12,25 @@ export class UserPrismaRepository implements UserRepository {
   ) {}
 
   async create(user: UserEntity): Promise<any> {
-    const userModel = this._mapper.toModel(user)
     const data = await this._database.user.create({
-      data: {
-        ...userModel,
-      },
+      data: this._mapper.toModel(user),
       include: {
         paste: true
       }
     });
-    return this._mapper.toModel(data)
+    return this._mapper.toEntity(data, data.paste)
   }
   
   async listAll(): Promise<UserEntity[]> {
-    const data = await this._database.user.findMany();
-    return this._mapper.toModelList(data)
+    return await this._database.user.findMany({
+      include:{
+        paste: true
+      }
+    });
   }
 
   async getById(id: string): Promise<UserEntity> {
-    return await this._database.user.findFirst({
+    const data = await this._database.user.findFirst({
       where: {
         id,
       },
@@ -38,19 +38,23 @@ export class UserPrismaRepository implements UserRepository {
         paste: true,
       },
     });
+    return this._mapper.toEntity(data, data.paste)
   }
 
   async update(user: UserEntity, id: string): Promise<UserEntity> {
-    const userModel = this._mapper.toModel(user)
-    return await this._database.user.update({
-      data: userModel,
+    const data = await this._database.user.update({
+      data: this._mapper.toModel(user),
       where: {
         id,
       },
+      include: {
+        paste: true
+      }
     });
+    return this._mapper.toEntity(data, data.paste)
   }
 
-  async delete(id: string): Promise<boolean | UserEntity> {
+  async delete(id: string): Promise<UserEntity> {
     return await this._database.user.delete({
       where: {
         id,
@@ -58,19 +62,8 @@ export class UserPrismaRepository implements UserRepository {
     });
   }
 
-  async getByEmail(email: string) {
-    return await this._database.user.findFirst({
-      where: {
-        email,
-      },
-    });
-  }
-
-  async verifyUserExistById(id: string) {
-    return await this._database.user.findUnique({
-      where: {
-        id,
-      },
-    });
+  async getByEmail(email: string): Promise<UserEntity> {
+    const data = await this._database.user.findUnique({ where: { email }, include: { paste: true } });
+    return this._mapper.toEntity(data, data.paste)
   }
 }

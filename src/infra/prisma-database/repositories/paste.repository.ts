@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { PasteEntity } from '@domain/entities/paste.entity';
 import PasteRepository from '@application/repositories/paste-repository';
 import PasteMapper from '../mappers/paste-mapper';
-import UserCreateRequestBody from '@infra/http/request-body/user/user-create-request-body';
 
 @Injectable()
 export class PastePrismaRepository implements PasteRepository {
@@ -13,18 +12,14 @@ export class PastePrismaRepository implements PasteRepository {
   ) {}
 
   async create(id: string, paste: PasteEntity): Promise<PasteEntity> {
-    const pasteModel = this._mapper.toModel(paste)
     const data = await this._database.paste.create({
-      data: {
-        ...pasteModel
-      },
+      data: this._mapper.toModel(paste),
       include: {
         user: true,
         note: true,
       },
     });
-
-    return this._mapper.toModel(data)
+    return this._mapper.toEntity(data, data.note, data.user)
   }
 
   async listAll(): Promise<PasteEntity[]> {
@@ -34,7 +29,7 @@ export class PastePrismaRepository implements PasteRepository {
         note: true,
       },
     });
-    return this._mapper.toModelList(data)
+    return data
   }
 
   async getById(id: string): Promise<PasteEntity> {
@@ -47,13 +42,12 @@ export class PastePrismaRepository implements PasteRepository {
         note: true,
       },
     });
-    return this._mapper.toModel(data)
+    return this._mapper.toEntity(data, data.note, data.user);
   }
 
   async update(paste: PasteEntity, id: string): Promise<PasteEntity> {
-    const pasteModel = this._mapper.toModel(paste)
     const data = await this._database.paste.update({
-      data: pasteModel,
+      data: this._mapper.toModel(paste),
       where: {
         id,
       },
@@ -62,15 +56,14 @@ export class PastePrismaRepository implements PasteRepository {
         note: true,
       },
     });
-    return this._mapper.toModel(data)
+    return this._mapper.toEntity(data, data.note, data.user);
   }
 
-  async delete(id: string): Promise<boolean | PasteEntity> {
-    const data = await this._database.paste.delete({
+  async delete(id: string): Promise<PasteEntity> {
+    return await this._database.paste.delete({
       where: {
         id,
       },
     });
-    return this._mapper.toModel(data)
   }
 }

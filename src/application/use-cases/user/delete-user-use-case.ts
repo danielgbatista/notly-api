@@ -8,7 +8,7 @@ export default class DeleteUserUseCase {
         private readonly _user_repository: UserRepository
     ) {}
 
-    public async handle(id: string): Promise<boolean | UserEntity> {
+    public async handle(id: string): Promise<UserEntity> {
         return await this._user_repository.delete(id)
     }
 }

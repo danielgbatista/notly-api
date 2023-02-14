@@ -22,9 +22,9 @@ export class NoteEntity {
   constructor(props: NoteProps){
     this.id = props.id;
     this.title = props.title;
+    this.paste = props.paste;
     this.content = props.content;
     this.pasteId = props.pasteId;
-    this.paste = props.paste;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }

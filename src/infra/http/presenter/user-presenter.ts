@@ -1,5 +1,4 @@
 import { UserEntity } from "@domain/entities/user.entity";
-import PastePresenter from "./paste-presenter";
 
 export default class UserPresenter {
 
@@ -8,7 +7,7 @@ export default class UserPresenter {
             id: user.id,
             username: user.username,
             email: user.email,
-            folders: user?.paste.map((paste) => ({
+            folders: user?.paste?.map((paste) => ({
                 id: paste?.id,
                 title: paste?.title,
                 createdAt: paste?.createdAt,

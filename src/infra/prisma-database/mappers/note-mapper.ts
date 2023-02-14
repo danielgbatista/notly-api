@@ -18,7 +18,7 @@ export default class NoteMapper {
         return model
     }
 
-    public toEntity(paste: Paste, note: Note): NoteEntity {
+    public toEntity(note: Note, paste: Paste): NoteEntity {
         const entity = new NoteEntity({
             id: note.id,
             title: note.title,
@@ -37,6 +37,6 @@ export default class NoteMapper {
     }
 
     public toEntityList(notes: Note[], paste: Paste): NoteEntity[] {
-        return notes.map(notes => this.toEntity(paste, notes))
+        return notes.map(notes => this.toEntity(notes, paste))
     }
 }
