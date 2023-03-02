@@ -1,14 +1,18 @@
-import UserRepository from '@application/repositories/user-repository'
-import { UserEntity } from '@domain/entities/user.entity'
-import { Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common';
+import UserRepository from '@application/repositories/user-repository';
+import type UserEntity from '@domain/entities/user.entity';
 
 @Injectable()
 export default class GetUserByEmailUseCase {
-    constructor(
-        private readonly _user_repository: UserRepository
-    ) {}
+  private readonly _userRepository: UserRepository;
 
-    public async handle(email: string) : Promise<UserEntity> {
-        return await this._user_repository.getByEmail(email);
-    }
-} 
+  public constructor(userRepository: UserRepository) {
+    this._userRepository = userRepository;
+  }
+
+  public async handle(email: string): Promise<UserEntity | null> {
+    const response = await this._userRepository.getByEmail(email);
+
+    return response;
+  }
+}

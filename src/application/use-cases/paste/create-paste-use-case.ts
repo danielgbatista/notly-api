@@ -1,34 +1,50 @@
+import { EmptyFieldsException } from '@application/errors/emptyFields.exception';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { validate } from 'class-validator';
+import PasteEntity from '@domain/entities/paste.entity';
 import PasteRepository from '@application/repositories/paste-repository';
 import UserRepository from '@application/repositories/user-repository';
-import { NoteEntity } from '@domain/entities/note.entity';
-import { PasteEntity } from '@domain/entities/paste.entity';
-import { UserEntity } from '@domain/entities/user.entity';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import type UserEntity from '@domain/entities/user.entity';
 
-type CreatePasteInput = {
-    title: string
-    userId: string 
-    createdAt: Date
-    updatedAt: Date
+interface CreatePasteInput {
+  title: string;
+  userId: string;
+  user: UserEntity;
 }
 
 @Injectable()
 export default class CreatePasteUseCase {
-    constructor(
-        private readonly _pasteRepository: PasteRepository,
-        private readonly _userRepository: UserRepository
-    ) {}
+  private readonly _pasteRepository: PasteRepository;
+  private readonly _userRepository: UserRepository;
 
-    public async handle(userId: string, input: CreatePasteInput) : Promise<PasteEntity> {
+  public constructor(pasteRepository: PasteRepository, userRepository: UserRepository) {
+    this._userRepository = userRepository;
+    this._pasteRepository = pasteRepository;
+  }
 
-        const user = await this._userRepository.getById(userId)
+  public async handle(userId: string, input: CreatePasteInput): Promise<PasteEntity> {
+    const paste = new PasteEntity(input);
 
-        if(!user) throw new HttpException('Invalid userId', HttpStatus.BAD_REQUEST)
+    if (await this.isValidUser(userId)) throw new NotFoundException();
 
-        const paste = new PasteEntity(input)
+    if (await this.isValidStructure(paste)) throw new EmptyFieldsException();
 
-        const response = await this._pasteRepository.create(userId, paste)
+    const response = await this._pasteRepository.create(userId, paste);
 
-        return response
-    }
+    return response;
+  }
+
+  private async isValidUser(id: string): Promise<boolean> {
+    const user = await this._userRepository.getById(id);
+
+    return user !== null;
+  }
+
+  private async isValidStructure(paste: PasteEntity): Promise<boolean> {
+    const structure = await validate(paste);
+
+    const minimumOfError = 1;
+
+    return structure.length < minimumOfError;
+  }
 }

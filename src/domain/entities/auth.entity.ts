@@ -1,14 +1,30 @@
-export type AuthProps = {
-    email: string;
-    password: string;
+export interface AuthProps {
+  id: string;
+  email: string;
 }
 
 export class AuthEntity {
-    email: string;
-    password: string;
+  private _id: string;
+  private _email: string;
 
-    constructor(props: AuthProps) {
-        this.email = props.email;
-        this.password = props.password;
-    }
+  public constructor(props: AuthProps) {
+    this._id = props.id;
+    this._email = props.email;
+  }
+
+  public get id(): string {
+    return this._id;
+  }
+
+  public set id(id: string) {
+    this._id = id;
+  }
+
+  public get email(): string {
+    return this._email;
+  }
+
+  public set email(email: string) {
+    this._email = email;
+  }
 }

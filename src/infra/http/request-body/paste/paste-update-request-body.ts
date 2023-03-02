@@ -1,7 +1,8 @@
 export default class PasteUpdateRequestBody {
-    id?: string;
-    title: string;
-    userId: string;
-    createdAt: Date;
-    updatedAt: Date;
+  public id: string;
+  public title: string;
+  public userId: string;
+  public content: string;
+  public createdAt: Date;
+  public updatedAt: Date;
 }

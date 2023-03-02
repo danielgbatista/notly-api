@@ -1,14 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import UserRepository from "@application/repositories/user-repository";
-import { UserEntity } from "@domain/entities/user.entity";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import UserRepository from '@application/repositories/user-repository';
+import type UserEntity from '@domain/entities/user.entity';
 
 @Injectable()
 export default class ListAllUserUseCase {
-    constructor(
-        private readonly _user_repository: UserRepository 
-    ) {}
+  private readonly _userRepository: UserRepository;
 
-    public async handle() : Promise<UserEntity[]> {
-        return this._user_repository.listAll();
-    }
+  public constructor(userRepository: UserRepository) {
+    this._userRepository = userRepository;
+  }
+
+  public async handle(): Promise<UserEntity[]> {
+    const response = await this._userRepository.listAll();
+
+    if (this.userNotFound(response)) throw new NotFoundException();
+
+    return response;
+  }
+
+  private userNotFound(response: UserEntity[]): boolean {
+    const minimumOfRecords = 1;
+
+    return response.length < minimumOfRecords;
+  }
 }

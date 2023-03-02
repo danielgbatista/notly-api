@@ -1,29 +1,32 @@
-import UserRepository from '@application/repositories/user-repository';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-// import { UserPrismaRepository } from '../../prisma-database/repositories/user.repository';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
+import UserRepository from '@application/repositories/user-repository';
+import type UserEntity from '@domain/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private _user_repository: UserRepository,
-    private _jwt_service: JwtService
-    ) {}
+  private readonly _userRepository: UserRepository;
+  private readonly _jwtService: JwtService;
 
-  async validateUser(email: string, pass: string) {
-    const userExist = await this._user_repository.getByEmail(email);
-    if (userExist && userExist.password === pass) {
-      const { password, ...result } = userExist;
-      return result;
-    }
-
-    return console.log('User does not exist');
+  public constructor(userRepository: UserRepository, jwtService: JwtService) {
+    this._userRepository = userRepository;
+    this._jwtService = jwtService;
   }
 
-  async login(user: any){
-    const payload = { username: user.email, sub: user.id };
+  public async validateUser(email: string, pass: string): Promise<UserEntity> {
+    const userExist = await this._userRepository.getByEmail(email);
+
+    if (userExist !== null && userExist.password === pass) return userExist;
+
+    throw new UnauthorizedException();
+  }
+
+  public login(user: { id: string; email: string }): { access_token: string } {
+    const payload = { sub: user.id, username: user.email };
+
     return {
-        access_token: this._jwt_service.sign(payload),
-    }
+      access_token: this._jwtService.sign(payload)
+    };
   }
 }

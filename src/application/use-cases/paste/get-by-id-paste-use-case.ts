@@ -1,22 +1,36 @@
+import { Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common/exceptions';
 import PasteRepository from '@application/repositories/paste-repository';
 import UserRepository from '@application/repositories/user-repository';
-import { PasteEntity } from '@domain/entities/paste.entity';
-import { Injectable } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common/enums';
-import { HttpException } from '@nestjs/common/exceptions';
+import type PasteEntity from '@domain/entities/paste.entity';
 
 @Injectable()
 export default class GetPasteByIdUseCase {
-    constructor(
-        private readonly _pasteRepository: PasteRepository,
-        private readonly _userRepository: UserRepository
-    ) {}
+  private readonly _pasteRepository: PasteRepository;
+  private readonly _userRepository: UserRepository;
 
-    public async handle(userId: string, pasteId: string): Promise<PasteEntity> {
-        const userExist = await this._userRepository.getById(userId)
+  public constructor(pasteRepository: PasteRepository, userRepository: UserRepository) {
+    this._userRepository = userRepository;
+    this._pasteRepository = pasteRepository;
+  }
 
-        if(!userExist) throw new HttpException('Invalid userId', HttpStatus.BAD_REQUEST)
+  public async handle(userId: string, pasteId: string): Promise<PasteEntity | null> {
+    if (await this.isValidUser(userId)) throw new NotFoundException();
 
-        return await this._pasteRepository.getById(pasteId)
-    }
+    const response = await this._pasteRepository.getById(pasteId);
+
+    if (this.isValidPaste(response)) throw new NotFoundException();
+
+    return response;
+  }
+
+  private async isValidUser(id: string): Promise<boolean> {
+    const user = await this._userRepository.getById(id);
+
+    return user !== null;
+  }
+
+  private isValidPaste(paste: PasteEntity | null): boolean {
+    return paste === null;
+  }
 }

@@ -1,42 +1,64 @@
-import { NoteEntity } from "@domain/entities/note.entity"
-import { PasteEntity } from "@domain/entities/paste.entity"
-import { Injectable } from "@nestjs/common"
-import { Note, Paste } from "@prisma/client"
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { PasteMapper } from './paste-mapper';
+import NoteEntity from '@domain/entities/note.entity';
+import type { Note, Paste } from '@prisma/client';
 
 @Injectable()
-export default class NoteMapper {
-    public toModel(note: NoteEntity): Note {
-        const model = note
+export class NoteMapper {
+  private readonly _pasteMapper: PasteMapper;
 
-        model.id = note.id
-        model.title = note.title
-        model.content = note.content
-        model.pasteId = note.pasteId
-        model.createdAt = note.createdAt
-        model.updatedAt = note.updatedAt
+  public constructor(
+    @Inject(forwardRef(() => PasteMapper))
+    pasteMapper: PasteMapper
+  ) {
+    this._pasteMapper = pasteMapper;
+  }
 
-        return model
-    }
+  public toModel(note: NoteEntity): Note {
+    const model: Note = {
+      content: note.content,
+      createdAt: note.createdAt,
+      id: note.id,
+      pasteId: note.pasteId,
+      title: note.title,
+      updatedAt: note.updatedAt
+    };
 
-    public toEntity(note: Note, paste: Paste): NoteEntity {
-        const entity = new NoteEntity({
-            id: note.id,
-            title: note.title,
-            content: note.content,
-            pasteId: note.pasteId,
-            createdAt: new Date(note.createdAt),
-            updatedAt: new Date(note.updatedAt),
-            paste: new PasteEntity(paste), 
-        })
+    return model;
+  }
 
-        return entity
-    }
+  public toEntityWithPaste(note: Note, paste: Paste): NoteEntity {
+    const entity = new NoteEntity({
+      content: note.content,
+      createdAt: new Date(note.createdAt),
+      id: note.id,
+      paste: this._pasteMapper.toEntity(paste),
+      pasteId: note.pasteId,
+      title: note.title,
+      updatedAt: new Date(note.updatedAt)
+    });
 
-    public toModelList(notes: NoteEntity[]): Note[] {
-        return notes.map(this.toModel)
-    }
+    return entity;
+  }
 
-    public toEntityList(notes: Note[], paste: Paste): NoteEntity[] {
-        return notes.map(notes => this.toEntity(notes, paste))
-    }
+  public toEntity(note: Note): NoteEntity {
+    const entity = new NoteEntity({
+      content: note.content,
+      createdAt: new Date(note.createdAt),
+      id: note.id,
+      pasteId: note.pasteId,
+      title: note.title,
+      updatedAt: new Date(note.updatedAt)
+    });
+
+    return entity;
+  }
+
+  public toModelList(notes: NoteEntity[]): Note[] {
+    return notes.map((note) => this.toModel(note));
+  }
+
+  public toEntityList(notes: Note[]): NoteEntity[] {
+    return notes.map((note) => this.toEntity(note));
+  }
 }

@@ -1,42 +1,58 @@
-import { PasteEntity } from '@domain/entities/paste.entity';
-import { UserEntity } from '@domain/entities/user.entity';
-import { Injectable } from '@nestjs/common';
-import { Paste, Prisma, PrismaClient, User } from '@prisma/client';
-
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { PasteMapper } from './paste-mapper';
+import UserEntity from '@domain/entities/user.entity';
+import type { Paste, User } from '@prisma/client';
 
 @Injectable()
-export default class UserMapper {
+export class UserMapper {
+  private readonly _pasteMapper: PasteMapper;
 
-    public toModel(user: UserEntity): User {
-        const model = user
+  public constructor(
+    @Inject(forwardRef(() => PasteMapper))
+    pasteMapper: PasteMapper
+  ) {
+    this._pasteMapper = pasteMapper;
+  }
 
-        model.id = user.id;
-        model.username = user.username;
-        model.email = user.email;
-        model.password = user.password;
-        model.paste = user.paste;
+  public toModel(user: UserEntity): User {
+    const model: User = {
+      email: user.email,
+      id: user.id,
+      password: user.password,
+      username: user.username
+    };
 
-        return model
-    }
+    return model;
+  }
 
-    public toEntity(user: User, paste: Paste[]): UserEntity {
-        const entity = new UserEntity({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            password: user.password,
-            paste: paste.map(paste => new PasteEntity(paste))
-        })
+  public toEntity(user: User): UserEntity {
+    const entity = new UserEntity({
+      email: user.email,
+      id: user.id,
+      password: user.password,
+      username: user.username
+    });
 
-        return entity;
-    }
+    return entity;
+  }
 
-    public toModelList(users: UserEntity[]) : User[] {
-        return users.map(this.toModel)
-    }
+  public toEntityWithPaste(user: User, pastes: Paste[]): UserEntity {
+    const entity = new UserEntity({
+      email: user.email,
+      id: user.id,
+      password: user.password,
+      paste: pastes.map((paste: Paste) => this._pasteMapper.toEntity(paste)),
+      username: user.username
+    });
 
-    public toEntityList(users: User[], pastes: Paste[]) : UserEntity[] {
-        return users.map(users => this.toEntity(users, pastes))
-    }
+    return entity;
+  }
 
+  public toModelList(users: UserEntity[]): User[] {
+    return users.map((user) => this.toModel(user));
+  }
+
+  public toEntityList(users: User[]): UserEntity[] {
+    return users.map((user) => this.toEntity(user));
+  }
 }

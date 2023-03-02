@@ -1,7 +1,7 @@
+import type UserEntity from '@domain/entities/user.entity';
+
 export default class PasteCreateRequestBody {
-    id: string;
-    title: string;
-    userId: string;
-    createdAt: Date;
-    updatedAt: Date;
+  public title: string;
+  public userId: string;
+  public user: UserEntity;
 }

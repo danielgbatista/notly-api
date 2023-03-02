@@ -1,9 +1,9 @@
-import { PasteEntity } from "@domain/entities/paste.entity";
+import type PasteEntity from '@domain/entities/paste.entity';
 
 export default abstract class PasteRepository {
-    abstract create(userId: string, paste: PasteEntity) : Promise<PasteEntity>;
-    abstract listAll() : Promise<PasteEntity[]>;
-    abstract getById(id: string) : Promise<PasteEntity>;
-    abstract update(paste: PasteEntity, id: string) : Promise<PasteEntity>;
-    abstract delete(id: string) : Promise<PasteEntity>;
+  public abstract create(userId: string, paste: PasteEntity): Promise<PasteEntity>;
+  public abstract listAll(): Promise<PasteEntity[]>;
+  public abstract getById(id: string): Promise<PasteEntity | null>;
+  public abstract update(paste: PasteEntity, id: string): Promise<PasteEntity>;
+  public abstract delete(id: string): Promise<PasteEntity>;
 }

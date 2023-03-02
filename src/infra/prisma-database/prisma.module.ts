@@ -1,35 +1,35 @@
 import { Module } from '@nestjs/common';
-import { NotePrismaRepository } from './repositories/note.repository';
-import { PastePrismaRepository} from './repositories/paste.repository';
-import { UserPrismaRepository } from './repositories/user.repository';
-import { PrismaService } from './prisma.service';
-import UserMapper from './mappers/user-mapper';
-import UserRepository from '@application/repositories/user-repository';
-import PasteMapper from './mappers/paste-mapper';
-import PasteRepository from '@application/repositories/paste-repository';
-import NoteMapper from './mappers/note-mapper';
+import { NoteMapper } from './mappers/note-mapper';
+import { NotePrismaRepository } from '@infra/prisma-database/repositories/note.repository';
+import { PasteMapper } from './mappers/paste-mapper';
+import { PastePrismaRepository } from '@infra/prisma-database/repositories/paste.repository';
+import { PrismaService } from '@infra/prisma-database/prisma.service';
+import { UserMapper } from './mappers/user-mapper';
+import { UserPrismaRepository } from '@infra/prisma-database/repositories/user.repository';
 import NoteRepository from '@application/repositories/note-repository';
+import PasteRepository from '@application/repositories/paste-repository';
+import UserRepository from '@application/repositories/user-repository';
 
 @Module({
+  exports: [PrismaService, UserRepository, PasteRepository, NoteRepository],
   imports: [],
   providers: [
     PrismaService,
     UserMapper,
     {
       provide: UserRepository,
-      useClass: UserPrismaRepository, 
+      useClass: UserPrismaRepository
     },
     PasteMapper,
     {
       provide: PasteRepository,
-      useClass: PastePrismaRepository, 
+      useClass: PastePrismaRepository
     },
     NoteMapper,
     {
       provide: NoteRepository,
-      useClass: NotePrismaRepository,
-    },
-  ],
-  exports: [PrismaService, UserRepository, PasteRepository, NoteRepository],
+      useClass: NotePrismaRepository
+    }
+  ]
 })
 export class PrismaModule {}

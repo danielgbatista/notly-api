@@ -1,8 +1,8 @@
+import type PasteEntity from '@domain/entities/paste.entity';
+
 export default class NoteCreateRequestBody {
-    id: string;
-    title: string;
-    content: string;
-    pasteId: string;
-    createdAt: Date;
-    updatedAt: Date;
+  public title: string;
+  public content: string;
+  public pasteId: string;
+  public paste: PasteEntity;
 }

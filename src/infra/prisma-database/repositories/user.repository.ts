@@ -1,69 +1,73 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma-database/prisma.service';
-import { UserEntity } from '@domain/entities/user.entity';
-import UserRepository from '@application/repositories/user-repository';
-import UserMapper from '../mappers/user-mapper';
+import { UserMapper } from '@infra/prisma-database/mappers/user-mapper';
+import type UserEntity from '@domain/entities/user.entity';
+import type UserRepository from '@application/repositories/user-repository';
 
 @Injectable()
 export class UserPrismaRepository implements UserRepository {
-  constructor(
-    private readonly _database: PrismaService,
-    private readonly _mapper: UserMapper 
-  ) {}
+  private readonly _database: PrismaService;
+  private readonly _mapper: UserMapper;
 
-  async create(user: UserEntity): Promise<any> {
+  public constructor(database: PrismaService, mapper: UserMapper) {
+    this._database = database;
+    this._mapper = mapper;
+  }
+
+  public async create(user: UserEntity): Promise<UserEntity> {
     const data = await this._database.user.create({
-      data: this._mapper.toModel(user),
-      include: {
-        paste: true
-      }
+      data: this._mapper.toModel(user)
     });
-    return this._mapper.toEntity(data, data.paste)
-  }
-  
-  async listAll(): Promise<UserEntity[]> {
-    return await this._database.user.findMany({
-      include:{
-        paste: true
-      }
-    });
+
+    return this._mapper.toEntity(data);
   }
 
-  async getById(id: string): Promise<UserEntity> {
-    const data = await this._database.user.findFirst({
-      where: {
-        id,
-      },
-      include: {
-        paste: true,
-      },
-    });
-    return this._mapper.toEntity(data, data.paste)
+  public async listAll(): Promise<UserEntity[]> {
+    const data = await this._database.user.findMany();
+
+    return this._mapper.toEntityList(data);
   }
 
-  async update(user: UserEntity, id: string): Promise<UserEntity> {
+  public async getById(id: string): Promise<UserEntity | null> {
+    const data = await this._database.user.findUnique({
+      include: {
+        paste: true
+      },
+      where: { id }
+    });
+
+    if (data === null) return null;
+
+    return this._mapper.toEntityWithPaste(data, data.paste);
+  }
+
+  public async update(user: UserEntity, id: string): Promise<UserEntity> {
     const data = await this._database.user.update({
       data: this._mapper.toModel(user),
-      where: {
-        id,
-      },
+      where: { id }
+    });
+
+    return this._mapper.toEntity(data);
+  }
+
+  public async delete(id: string): Promise<UserEntity> {
+    const data = await this._database.user.delete({
+      where: { id }
+    });
+
+    return this._mapper.toEntity(data);
+  }
+
+  public async getByEmail(email: string): Promise<UserEntity | null> {
+    const data = await this._database.user.findUnique({
       include: {
         paste: true
-      }
-    });
-    return this._mapper.toEntity(data, data.paste)
-  }
-
-  async delete(id: string): Promise<UserEntity> {
-    return await this._database.user.delete({
-      where: {
-        id,
       },
+      where: { email }
     });
-  }
 
-  async getByEmail(email: string): Promise<UserEntity> {
-    const data = await this._database.user.findUnique({ where: { email }, include: { paste: true } });
-    return this._mapper.toEntity(data, data.paste)
+    if (data === null) return null;
+
+    return this._mapper.toEntity(data);
   }
 }

@@ -1,14 +1,26 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import PasteRepository from '@application/repositories/paste-repository';
-import { PasteEntity } from '@domain/entities/paste.entity';
-import { Injectable } from '@nestjs/common';
+import type PasteEntity from '@domain/entities/paste.entity';
 
 @Injectable()
 export default class ListAllPasteUseCase {
-    constructor(
-        private readonly _pasteRepository: PasteRepository
-    ) {}
+  private readonly _pasteRepository: PasteRepository;
 
-    public async handle(): Promise<PasteEntity[]> {
-        return this._pasteRepository.listAll()
-    }
+  public constructor(pasteRepository: PasteRepository) {
+    this._pasteRepository = pasteRepository;
+  }
+
+  public async handle(): Promise<PasteEntity[]> {
+    const response = await this._pasteRepository.listAll();
+
+    if (this.pasteNotFound(response)) throw new NotFoundException();
+
+    return response;
+  }
+
+  private pasteNotFound(response: PasteEntity[]): boolean {
+    const minimumOfRecords = 1;
+
+    return response.length < minimumOfRecords;
+  }
 }
